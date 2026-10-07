@@ -8,6 +8,10 @@ Blog đời sống dạng diorama voxel (kiểu Minecraft) chạy trong trình d
 | --- | --- |
 | ![Cận cảnh](shots/can-canh.png) | ![Ban đêm](shots/dem.png) |
 
+## Phim 60 giây
+
+Thư mục [`video/`](video/) chứa phim hoạt hình 60 giây dựng từ chính khu vườn này bằng HyperFrames, nhạc "Sleepy Cat" và âm thanh từ Mixkit: [`video/vuon-chieu-60s.mp4`](video/vuon-chieu-60s.mp4).
+
 ## Chạy thử
 
 Mở `vuon-chieu.html` qua một web server tĩnh bất kỳ, ví dụ:

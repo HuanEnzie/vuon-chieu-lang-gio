@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Vườn Chiều Lặng Gió 60s</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./assets/vendor/three.module.js",
+          "three/addons/": "./assets/vendor/jsm/"
+        }
+      }
+    </script>
+    <style>
+      /*__FONTS__*/
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #000;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: "Be Vietnam Pro", sans-serif;
+      }
+      #garden {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        pointer-events: none;
+      }
+      .layer.top {
+        justify-content: flex-start;
+        padding-top: 110px;
+      }
+      .layer.bottom {
+        justify-content: flex-end;
+        padding-bottom: 86px;
+      }
+      .layer.center {
+        justify-content: center;
+      }
+      .panel {
+        background: #fff7e8;
+        color: #3a2a1c;
+        border: 6px solid #6b4a2f;
+        border-radius: 12px;
+        box-shadow: inset 0 -9px 0 #f1e1c4, 0 10px 0 rgba(70, 40, 20, 0.32), 0 30px 60px -20px rgba(40, 20, 10, 0.45);
+        text-align: center;
+      }
+      .title-panel {
+        padding: 30px 64px 40px;
+      }
+      .title-panel h1 {
+        font-family: "Mali", sans-serif;
+        font-weight: 700;
+        font-size: 92px;
+        line-height: 1.1;
+      }
+      .title-panel p {
+        margin-top: 8px;
+        font-size: 32px;
+        font-weight: 500;
+        color: #7a6450;
+      }
+      .cap {
+        padding: 16px 40px 22px;
+        font-family: "Mali", sans-serif;
+        font-weight: 600;
+        font-size: 44px;
+        line-height: 1.25;
+        max-width: 1500px;
+      }
+      .credit {
+        margin-top: 26px;
+        font-size: 22px;
+        font-weight: 500;
+        color: #fff7e8;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+      }
+      #fade {
+        position: absolute;
+        inset: 0;
+        background: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1920" data-height="1080">
+      <canvas id="garden" class="clip" data-start="0" data-duration="60" data-track-index="0"></canvas>
+      <p id="loading" hidden></p>
+
+      <div id="title-card" class="layer top clip" data-start="0.8" data-duration="5.6" data-track-index="1">
+        <div id="title-in" class="panel title-panel">
+          <h1>Vườn Chiều Lặng Gió</h1>
+          <p>nhật ký những ngày chậm rãi</p>
+        </div>
+      </div>
+
+      __CAPTIONS__
+
+      <div id="end-card" class="layer center clip" data-start="55.6" data-duration="4.4" data-track-index="3">
+        <div id="end-in" class="panel title-panel">
+          <h1>Vườn Chiều Lặng Gió</h1>
+          <p>Chỉ cần ở đây là đủ.</p>
+        </div>
+        <div id="end-credit" class="credit">Nhạc: “Sleepy Cat” – Alejandro Magaña · Âm thanh: Mixkit · Dựng hoàn toàn bằng code</div>
+      </div>
+
+      <div id="fade-clip" class="layer clip" data-start="58.9" data-duration="1.1" data-track-index="4">
+        <div id="fade"></div>
+      </div>
+
+      <audio id="soundtrack" src="assets/audio/soundtrack.wav" data-start="0" data-duration="60" data-track-index="5"></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#title-in", { opacity: 0, y: -24, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "back.out(1.6)" }, 0.8);
+      tl.to("#title-in", { opacity: 0, y: -16, duration: 0.6, ease: "power2.in" }, 5.8);
+      for (const c of __CAPTION_TIMES__) {
+        tl.fromTo(`#${c.id}-in`, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, c.start);
+        tl.to(`#${c.id}-in`, { opacity: 0, y: 10, duration: 0.45, ease: "power2.in" }, c.end - 0.45);
+      }
+      tl.fromTo("#end-in", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.5)" }, 55.6);
+      tl.fromTo("#end-credit", { opacity: 0 }, { opacity: 1, duration: 0.8 }, 56.4);
+      tl.fromTo("#fade", { opacity: 0 }, { opacity: 1, duration: 1.0, ease: "power1.in" }, 58.95);
+      window.__timelines["main"] = tl;
+    </script>
+
+    <script type="module">
+      // Deterministic randomness: every render worker must build the identical scene (GTAO noise included).
+      Math.random = (() => {
+        let a = 20261007;
+        return () => {
+          a |= 0;
+          a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      })();
+      window.__hf = window.__hf || {};
+      window.__hf.buildReady = window.__hf.buildReady || {};
+      let markReady;
+      window.__hf.buildReady["voxel-garden"] = new Promise((r) => (markReady = r));
+
+      import * as THREE from "three";
+      import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+      import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+      import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
+      import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+      import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+      import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+
+      const seededRandom = () => Math["random"]();
+      const $ = (id) => document.getElementById(id);
+      const isPhone = () => false;
+      const reduceMotion = false;
+      const W = 1920;
+      const H = 1080;
+
+      //__SCENE__
+
+      /* ============================ FILM DIRECTION (pure functions of time) ============================ */
+      const easeIO = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+      const seeded = (seed) => {
+        let a = seed;
+        return () => {
+          a |= 0;
+          a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      };
+      const hash1 = (n) => {
+        const s = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+        return s - Math.floor(s);
+      };
+      function angleTo(a, b) {
+        let d = b - a;
+        while (d > Math.PI) d -= Math.PI * 2;
+        while (d < -Math.PI) d += Math.PI * 2;
+        return d;
+      }
+      const lerpAngle = (a, b, k) => a + angleTo(a, b) * k;
+
+      // ---- camera shots
+      const SHOTS = [
+        { t0: 0, t1: 7, a: [0.15, 0.8, 0.72, 0, 0.5, 0], b: [0.55, 0.62, 0.98, 0, 0.8, 0] },
+        { t0: 7, t1: 12.2, a: [0.45, 0.55, 1.9, -4.0, 1.3, -1.8], b: [0.72, 0.52, 2.15, -3.3, 1.1, -0.6] },
+        { t0: 12.2, t1: 21.5, a: [-1.25, 0.5, 2.6, -3.2, 1.0, 2.7], b: [-1.02, 0.48, 2.95, -3.0, 0.9, 3.0] },
+        { t0: 21.5, t1: 28.4, a: [0.4, 0.56, 3.3, 1.0, 0.5, 7.0], b: [0.15, 0.52, 3.7, 0.9, 0.5, 7.1] },
+        { t0: 28.4, t1: 38.6, a: [0.22, 0.5, 2.8, 1.2, 0.9, 1.4], b: [-0.12, 0.47, 3.2, 1.4, 0.9, 1.5] },
+        { t0: 38.6, t1: 46.4, a: [0.8, 0.55, 2.4, 4.4, 0.3, 4.8], b: [1.05, 0.5, 2.75, 4.6, 0.3, 5.0] },
+        { t0: 46.4, t1: 52.6, a: [1.0, 0.62, 1.2, -0.5, 1.6, -1.0], b: [1.35, 0.58, 1.38, -0.5, 1.4, -0.5] },
+        { t0: 52.6, t1: 60, a: [1.25, 0.5, 2.7, 2.6, 1.5, 4.4], b: [1.65, 0.7, 0.82, 0, 0.8, 0] },
+      ];
+      function cameraAt(t) {
+        const s = SHOTS.find((x) => t >= x.t0 && t < x.t1) || SHOTS[SHOTS.length - 1];
+        let k = clamp((t - s.t0) / (s.t1 - s.t0), 0, 1);
+        k = s === SHOTS[SHOTS.length - 1] ? easeIO(clamp((t - 55.0) / 5.0, 0, 1)) * 0.85 + k * 0.15 : easeIO(k);
+        return s.a.map((v, i) => lerp(v, s.b[i], k));
+      }
+
+      // ---- the owner's afternoon, as a timeline
+      const P = (x, z) => new V3(x, 0, z);
+      const OWNER = [
+        { t0: 0, t1: 7.0, at: P(-4.5, -3.6), face: 0, hidden: true },
+        { t0: 7.0, t1: 8.2, from: P(-4.5, -3.6), to: P(-4.5, -2.4) },
+        { t0: 8.2, t1: 10.8, from: P(-4.5, -2.4), to: P(-1.8, 0.2) },
+        { t0: 10.8, t1: 12.2, from: P(-1.8, 0.2), to: P(-1.95, 2.5) },
+        { t0: 12.2, t1: 21.4, at: P(-1.95, 2.5), face: -Math.PI / 2, act: "water" },
+        { t0: 21.4, t1: 23.0, from: P(-1.95, 2.5), to: P(0.2, 2.6) },
+        { t0: 23.0, t1: 24.4, from: P(0.2, 2.6), to: P(2.0, 1.85) },
+        { t0: 24.4, t1: 38.6, at: P(2.0, 1.85), face: 0, act: "sit" },
+        { t0: 38.6, t1: 39.6, from: P(2.0, 1.85), to: P(2.3, 3.0) },
+        { t0: 39.6, t1: 40.8, from: P(2.3, 3.0), to: P(2.6, 4.4) },
+        { t0: 40.8, t1: 52.6, at: P(2.6, 4.4), face: Math.PI / 2, act: "look" },
+        { t0: 52.6, t1: 61, at: P(2.6, 4.4), face: "camera", act: "greet" },
+      ];
+      function ownerAt(t) {
+        const s = OWNER.find((x) => t >= x.t0 && t < x.t1) || OWNER[OWNER.length - 1];
+        if (s.from) {
+          const k = (t - s.t0) / (s.t1 - s.t0);
+          const pos = s.from.clone().lerp(s.to, k);
+          const d = s.to.clone().sub(s.from);
+          return { pos, yaw: Math.atan2(d.x, d.z), walking: true, seg: s };
+        }
+        return { pos: s.at.clone(), yaw: s.face, walking: false, seg: s };
+      }
+      // smooth the facing direction by blending with the recent past
+      function ownerYaw(t, camAz) {
+        let y = null;
+        for (let i = 4; i >= 0; i--) {
+          const o = ownerAt(Math.max(0, t - i * 0.06));
+          const target = o.yaw === "camera" ? camAz : o.yaw;
+          y = y === null ? target : lerpAngle(y, target, 0.45);
+        }
+        return y;
+      }
+
+      // ---- wandering critters with precomputed, seeded schedules
+      function schedule(seed, area, speed, start, until = 61) {
+        const r = seeded(seed);
+        const segs = [];
+        let t = 0;
+        let p = start.clone();
+        let yaw = r() * 6;
+        while (t < until) {
+          const wait = 0.9 + r() * 2.6;
+          segs.push({ t0: t, t1: t + wait, from: p.clone(), to: p.clone(), yaw });
+          t += wait;
+          const q = P(area.x0 + r() * (area.x1 - area.x0), area.z0 + r() * (area.z1 - area.z0));
+          const dur = q.distanceTo(p) / speed;
+          yaw = Math.atan2(q.x - p.x, q.z - p.z);
+          segs.push({ t0: t, t1: t + dur, from: p.clone(), to: q.clone(), yaw, move: true });
+          t += dur;
+          p = q;
+        }
+        return segs;
+      }
+      function sample(segs, t) {
+        const s = segs.find((x) => t >= x.t0 && t < x.t1) || segs[segs.length - 1];
+        const k = clamp((t - s.t0) / (s.t1 - s.t0), 0, 1);
+        return { pos: s.from.clone().lerp(s.to, k), yaw: s.yaw, moving: !!s.move, k, s };
+      }
+      const LAWN = { x0: -0.6, x1: 2.6, z0: 5.9, z1: 8.6 };
+      const chickenSched = [schedule(11, LAWN, 0.6, P(0.2, 6.6)), schedule(29, LAWN, 0.55, P(1.8, 7.8))];
+      const bunnySched = (() => {
+        const a = schedule(7, { x0: -2.0, x1: 0.4, z0: 6.0, z1: 8.5 }, 0.9, P(-0.8, 7.4), 14);
+        const at14 = sample(a, 14).pos;
+        const nib = P(-2.05, 4.35);
+        const dur = at14.distanceTo(nib) / 0.9;
+        const segs = a.filter((s) => s.t0 < 14).map((s) => ({ ...s, t1: Math.min(s.t1, 14), to: s.t1 > 14 ? sample(a, 14).pos : s.to }));
+        segs.push({ t0: 14, t1: 14 + dur, from: at14, to: nib, yaw: Math.atan2(nib.x - at14.x, nib.z - at14.z), move: true });
+        segs.push({ t0: 14 + dur, t1: 24.5, from: nib, to: nib, yaw: -Math.PI / 2, nibble: true });
+        const b = schedule(8, { x0: -2.0, x1: 0.4, z0: 6.0, z1: 8.5 }, 0.9, nib, 40);
+        b.forEach((s) => segs.push({ ...s, t0: s.t0 + 24.5, t1: s.t1 + 24.5 }));
+        return segs;
+      })();
+
+      // ---- scripted events
+      const EV = { dogBark: 29.6, catWake: 35.6, catSleep: 40.2, egg: 27.0, chickenHop: 26.6, koi: [42.5, 44.0, 45.3], doorOpen: 6.6, wave: 53.2 };
+      const nightAt = (t) => smooth(45.6, 51.5, t);
+      const duskAt = (t) => smooth(30, 45, t);
+
+      // ---- dog follows the owner with a little lag
+      function dogAt(t) {
+        const lagT = Math.max(0, t - 0.9);
+        const o = ownerAt(lagT);
+        const sit = smooth(24.9, 25.9, t) * (1 - smooth(38.6, 39.5, t));
+        const yaw = typeof o.yaw === "number" ? o.yaw : 0;
+        const off = new V3(lerp(-0.95, -0.75, sit), 0, lerp(0.35, 0.95, sit)).applyAxisAngle(new V3(0, 1, 0), yaw);
+        const follow = o.pos.clone().add(off);
+        const rest = P(-3.2, -1.7);
+        return rest.lerp(follow, smooth(7.4, 8.6, t));
+      }
+
+      /* ---------- analytic particle pools ---------- */
+      const Z_SPR = sprite(
+        [
+          "................",
+          "................",
+          "...zzzzzzzzz....",
+          "...zZZZZZZZz....",
+          "...zzzzzzZZz....",
+          "........zZz.....",
+          ".......zZz......",
+          "......zZz.......",
+          ".....zZz........",
+          "....zZzzzzzz....",
+          "...zZZZZZZZz....",
+          "...zzzzzzzzz....",
+          "................",
+          "................",
+          "................",
+          "................",
+        ],
+        { z: "#4b5a8a", Z: "#ffffff" },
+      );
+      const pool = (n, make) => Array.from({ length: n }, () => {
+        const o = make();
+        o.visible = false;
+        fxGroup.add(o);
+        return o;
+      });
+      const heartPool = pool(24, () => new THREE.Sprite(heartMat.clone()));
+      const starPool = pool(16, () => new THREE.Sprite(starMat.clone()));
+      const zPool = pool(3, () => new THREE.Sprite(new THREE.SpriteMaterial({ map: pixTex(Z_SPR), transparent: true, depthWrite: false })));
+      const dropMat = new THREE.MeshLambertMaterial({ color: 0x8fd0ff, emissive: 0x1a3a5a, transparent: true });
+      const dropPool = pool(70, () => new THREE.Mesh(cubeGeo, dropMat.clone()));
+      const egg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.16, 0.12), colMat(0xfff4e0));
+      egg.castShadow = true;
+      scene.add(egg);
+
+      function burst(list, startIdx, n, t, t0, origin, { up = 1.2, spread = 0.6, g = 0, life = 1.4, size = 0.28, seed = 1 }) {
+        for (let i = 0; i < n; i++) {
+          const o = list[startIdx + i];
+          if (!o) break;
+          const age = t - t0 - i * 0.05;
+          if (age < 0 || age > life) continue;
+          const a = hash1(seed * 31 + i) * Math.PI * 2;
+          const sp = spread * (0.4 + hash1(seed * 17 + i) * 0.6);
+          const vy = up * (0.6 + hash1(seed * 7 + i) * 0.6);
+          o.visible = true;
+          o.position.set(origin.x + Math.cos(a) * sp * age, origin.y + vy * age + 0.5 * g * age * age, origin.z + Math.sin(a) * sp * age);
+          const k = age / life;
+          o.scale.setScalar(o.isSprite ? size * (0.7 + Math.sin(Math.min(k, 1) * Math.PI) * 0.5) : size);
+          o.material.opacity = 1 - smooth(0.65, 1, k);
+        }
+      }
+
+      /* ---------- frame ---------- */
+      const SUN_DAY = new THREE.Color(0xffc894);
+      const SUN_DUSK = new THREE.Color(0xff8f5a);
+      const SUN_NIGHT = new THREE.Color(0x8fa2ff);
+      const HEMI_SKY_D = new THREE.Color(0xffc6dc);
+      const HEMI_SKY_N = new THREE.Color(0x4a4f9a);
+      const HEMI_GND_D = new THREE.Color(0x6f7fa8);
+      const HEMI_GND_N = new THREE.Color(0x2a2440);
+      const swayM = new THREE.Matrix4();
+      const swayQ = new THREE.Quaternion();
+      const swayE = new THREE.Euler();
+      const swayS = new V3();
+      const swayP = new V3();
+      const TARGET = new V3();
+
+      function renderAt(time) {
+        const t = clamp(time, 0, 60);
+        const night = nightAt(t);
+        const dusk = duskAt(t) * (1 - night);
+
+        // camera
+        const [az, el, zoom, tx, ty, tz] = cameraAt(t);
+        TARGET.set(tx, ty, tz);
+        const D = 60;
+        camera.position.set(tx + D * Math.cos(el) * Math.sin(az), ty + D * Math.sin(el), tz + D * Math.cos(el) * Math.cos(az));
+        camera.zoom = zoom;
+        camera.updateProjectionMatrix();
+        camera.lookAt(TARGET);
+
+        // light: golden afternoon -> deep dusk -> night
+        sun.intensity = lerp(lerp(3.0, 2.3, dusk), 0.5, night);
+        sun.color.copy(SUN_DAY).lerp(SUN_DUSK, dusk).lerp(SUN_NIGHT, night);
+        sun.position.set(lerp(-14, 10, night), lerp(lerp(14, 8, dusk), 18, night), lerp(9, 6, night));
+        sun.target.position.set(0, 0, 0);
+        hemi.intensity = lerp(lerp(1.05, 0.9, dusk), 0.55, night);
+        hemi.color.copy(HEMI_SKY_D).lerp(HEMI_SKY_N, night);
+        hemi.groundColor.copy(HEMI_GND_D).lerp(HEMI_GND_N, night);
+        windowMat.emissiveIntensity = night * 2.2 + dusk * 0.4;
+        houseGlow.intensity = night * 6;
+        lanterns.forEach((l, i) => {
+          l.glowMat.emissiveIntensity = 0.35 + night * 3.2 + Math.sin(t * 3 + i) * 0.1 * night;
+          l.light.intensity = night * 4;
+        });
+        const skyN = Math.max(night, dusk * 0.22);
+        skyMat.uniforms.uTime.value = t;
+        skyMat.uniforms.uNight.value = skyN;
+        skyMat.uniforms.uOff.value = az * 0.35;
+        grade.uniforms.uNight.value = night;
+        waterMat.uniforms.uTime.value = t;
+        waterMat.uniforms.uNight.value = night;
+        scene.fog.color.setRGB(lerp(0.96, 0.12, night), lerp(0.8, 0.11, night), lerp(0.82, 0.26, night));
+        bloom.strength = lerp(0.32, 0.95, night);
+        bloom.threshold = lerp(0.86, 0.55, night);
+        fireflies.forEach((f) => {
+          const u = f.userData;
+          f.position.set(u.x + Math.sin(t * u.sp + u.ph) * 0.8, u.y + Math.sin(t * u.sp * 1.7 + u.ph) * 0.4, u.z + Math.cos(t * u.sp * 1.3 + u.ph) * 0.8);
+          f.material.opacity = night * Math.max(0, Math.sin(t * 1.5 + u.ph * 3));
+        });
+
+        // ambient motion
+        const wateringBoost = 1 + 1.5 * (smooth(12.2, 13, t) * (1 - smooth(20.8, 21.6, t)));
+        swayers.forEach((im) => {
+          const boost = im === wheatField || im === carrotField ? wateringBoost : 1;
+          im.userData.data.forEach((d, i) => {
+            swayE.set(Math.sin(t * 1.4 + d.ph) * 0.08 * boost, d.rot, Math.cos(t * 1.1 + d.ph) * 0.08 * boost);
+            swayQ.setFromEuler(swayE);
+            swayS.setScalar(d.s);
+            swayP.set(d.x, d.y, d.z);
+            swayM.compose(swayP, swayQ, swayS);
+            im.setMatrixAt(i, swayM);
+          });
+          im.instanceMatrix.needsUpdate = true;
+        });
+        miniIslands.forEach((m, i) => (m.position.y = m.userData.baseY + Math.sin(t * 0.4 + i * 2) * 0.3));
+        petals.forEach((p) => {
+          const u = p.userData;
+          const k = (t * u.sp * 0.6 + u.ph) % 1;
+          p.position.set(TREE.x + u.ox + Math.sin(k * 10 + u.drift) * 0.6, 7.5 - k * 8, TREE.z + u.oz + k * 2);
+          p.rotation.set(k * 9, k * 7, k * 5);
+          p.visible = k < 0.96 && p.position.y > -0.05;
+        });
+        smoke.forEach((s, i) => {
+          const k = (t * 0.25 + i / smoke.length) % 1;
+          s.position.set(-3.5 + Math.sin(k * 5 + i) * 0.3 + k * 0.6, 8.2 + k * 3, -6.5 + k * 0.3);
+          s.scale.setScalar(0.3 + k * 0.5);
+          s.material.opacity = Math.sin(k * Math.PI) * 0.75;
+        });
+        const dk = t - EV.doorOpen;
+        doorGroup.rotation.y = dk > 0 && dk < 3.2 ? -Math.sin(Math.min(1, dk / 0.5) * Math.PI * 0.5) * 1.3 * (1 - smooth(2.4, 3.2, dk)) : 0;
+
+        // reset particle pools
+        [heartPool, starPool, zPool, dropPool].forEach((p) => p.forEach((o) => (o.visible = false)));
+
+        // ---- owner
+        const o = ownerAt(t);
+        const yaw = ownerYaw(t, az);
+        const act = o.seg.act;
+        const sitK = act === "sit" ? smooth(o.seg.t0, o.seg.t0 + 0.5, t) * (1 - smooth(o.seg.t1 - 0.4, o.seg.t1, t)) : 0;
+        const watering = act === "water" && t > o.seg.t0 + 0.3 && t < o.seg.t1 - 0.3;
+        const wk = t - EV.wave;
+        const waving = wk >= 0 && wk < 2.6;
+        const g = owner.rootG;
+        g.visible = !o.seg.hidden;
+        const seatPos = o.pos.clone().lerp(P(2.0, 1.5), sitK);
+        g.position.set(seatPos.x, groundY(seatPos.x, seatPos.z) + sitK * (0.55 - owner.LH * 1.3), seatPos.z);
+        g.rotation.y = yaw;
+        const sw = o.walking ? Math.sin(t * 9) : 0;
+        owner.legs[0].rotation.x = -1.45 * sitK + sw * 0.6;
+        owner.legs[1].rotation.x = -1.45 * sitK - sw * 0.6;
+        owner.rig.position.y = o.walking ? Math.abs(Math.sin(t * 9)) * 0.04 : Math.sin(t * 1.8) * 0.006;
+        owner.arms[0].rotation.set(-0.4 * sitK - sw * 0.55, 0, 0.05);
+        if (waving) owner.arms[0].rotation.set(0, 0, 2.6 + Math.sin(wk * 12) * 0.35);
+        owner.arms[1].rotation.set(watering ? -1.25 : -0.4 * sitK + sw * 0.55, 0, -0.05);
+        owner.can.visible = act === "water";
+        owner.can.rotation.x = watering ? 0.35 + Math.sin(t * 3) * 0.08 : 0;
+        owner.head.rotation.y = waving ? 0 : act === "look" ? Math.sin(t * 0.5) * 0.25 : Math.sin(t * 0.45) * 0.3 * (o.walking ? 0.3 : 1);
+        owner.head.rotation.x = watering ? 0.28 : act === "look" ? 0.22 : sitK * Math.sin(t * 0.3) * 0.08;
+        const blink = t % 3.7 < 0.14;
+        owner.faceMat.map = waving || (act === "greet" && wk > 0) ? owner.faceTex.smile : blink || sitK > 0.5 ? owner.faceTex.happy : owner.faceTex.normal;
+        // watering stream
+        if (act === "water") {
+          g.updateMatrixWorld(true);
+          const tip = owner.can.localToWorld(new V3(0, 0.06, 0.3));
+          const fwd = new V3(Math.sin(yaw), 0, Math.cos(yaw));
+          dropPool.forEach((d, j) => {
+            const life = 0.55;
+            const born = Math.floor((t - j * (life / dropPool.length)) / life) * life + j * (life / dropPool.length);
+            const age = t - born;
+            if (!watering || born < o.seg.t0 + 0.3) return;
+            d.visible = true;
+            const sp = 0.6 + hash1(j * 3.1 + Math.floor(born * 10)) * 0.5;
+            d.position.set(tip.x + fwd.x * sp * age + (hash1(j) - 0.5) * 0.08, tip.y - 3.2 * age * age, tip.z + fwd.z * sp * age + (hash1(j + 9) - 0.5) * 0.08);
+            d.scale.setScalar(0.05);
+            d.material.opacity = 1 - smooth(0.7, 1, age / life);
+          });
+        }
+        if (wk > 0.1) burst(starPool, 0, 7, t, EV.wave + 0.1, owner.head.getWorldPosition(new V3()).add(new V3(0, 0.5, 0)), { size: 0.34, up: 1.2, seed: 5 });
+
+        // ---- dog
+        const dp = dogAt(t);
+        const dpPrev = dogAt(Math.max(0, t - 0.12));
+        const vel = dp.clone().sub(dpPrev);
+        const moving = vel.length() > 0.02;
+        const toOwner = g.position.clone().sub(dp);
+        const dogYaw = moving ? Math.atan2(vel.x, vel.z) : t < 7.4 ? 2.6 : Math.atan2(toOwner.x, toOwner.z);
+        const jk = t - EV.dogBark;
+        const hop = jk > 0 && jk < 0.6 ? Math.sin((jk / 0.6) * Math.PI) * 0.5 : 0;
+        dog.g.position.set(dp.x, groundY(dp.x, dp.z), dp.z);
+        dog.g.rotation.y = dogYaw + (jk > 0 && jk < 0.6 ? (jk / 0.6) * Math.PI * 2 : 0);
+        dog.rig.position.y = hop + (moving ? Math.abs(Math.sin(t * 12)) * 0.04 : 0);
+        dog.legs.forEach((l, i) => (l.rotation.x = moving ? Math.sin(t * 12 + (i % 2 ? Math.PI : 0) + (i > 1 ? Math.PI : 0)) * 0.6 : 0));
+        dog.tail.rotation.y = Math.sin(t * (moving || hop ? 20 : 10)) * 0.5;
+        dog.head.rotation.z = moving ? 0 : Math.sin(t * 0.8) * 0.15;
+        burst(heartPool, 0, 4, t, EV.dogBark + 0.2, dogAt(EV.dogBark).add(new V3(0, 1.1, 0)), { seed: 2 });
+
+        // ---- cat
+        const ck = t - EV.catWake;
+        const awake = smooth(0, 0.3, ck) * (1 - smooth(EV.catSleep - EV.catWake - 0.6, EV.catSleep - EV.catWake, ck));
+        cat.faceMat.map = awake > 0.5 ? catTex.awake : catTex.sleep;
+        cat.head.position.y = cat.legH + 0.24 + 0.08 - (1 - awake) * 0.16;
+        cat.head.rotation.x = (1 - awake) * 0.25;
+        cat.head.rotation.z = awake * Math.sin(ck * 3) * 0.15;
+        cat.rig.scale.y = 1 + Math.sin(t * 1.6) * 0.03 * (1 - awake);
+        cat.rig.position.y = -(1 - awake) * 0.1;
+        cat.legs.forEach((l) => (l.visible = awake > 0.5));
+        cat.tail.rotation.y = Math.sin(t * (awake > 0.5 ? 5 : 0.8)) * 0.4;
+        scene.updateMatrixWorld(true);
+        const catHead = cat.head.getWorldPosition(new V3());
+        burst(heartPool, 4, 7, t, EV.catWake + 0.15, catHead.clone().add(new V3(0, 0.3, 0)), { seed: 3 });
+        zPool.forEach((z, i) => {
+          const k = (t * 0.35 + i / 3) % 1;
+          z.visible = awake < 0.2;
+          z.position.set(catHead.x + 0.1 + k * 0.25, catHead.y + 0.25 + k * 0.6, catHead.z);
+          z.scale.setScalar(0.12 + k * 0.12);
+          z.material.opacity = Math.sin(k * Math.PI) * (1 - awake);
+        });
+
+        // ---- chickens (+ the first egg)
+        chickens.forEach((c, i) => {
+          const s = sample(chickenSched[i], t);
+          const hk = t - EV.chickenHop - i * 0.15;
+          const hp = hk > 0 && hk < 0.5 ? Math.sin((hk / 0.5) * Math.PI) * 0.35 : 0;
+          c.g.position.set(s.pos.x, hp, s.pos.z);
+          c.g.rotation.y = s.yaw;
+          c.rig.position.y = s.moving ? Math.abs(Math.sin(t * 14)) * 0.03 : 0;
+          c.head.rotation.x = !s.moving && Math.sin(t * 3 + i * 2) > 0.55 ? 0.7 : 0;
+          c.wings.forEach((w, j) => (w.rotation.z = hp ? (j ? -1 : 1) * Math.sin(t * 40) * 0.8 : 0));
+        });
+        const eggAt = sample(chickenSched[0], EV.egg).pos.add(new V3(0.3, 0.08, -0.15));
+        const ek = t - EV.egg;
+        egg.visible = ek > 0;
+        egg.position.copy(eggAt);
+        egg.scale.setScalar(ek > 0 ? Math.min(1, ek * 5) * (1 + Math.sin(Math.min(ek * 5, 1) * Math.PI) * 0.3) : 0.001);
+        burst(heartPool, 11, 4, t, EV.egg + 0.1, eggAt.clone().add(new V3(0, 0.2, 0)), { seed: 4, size: 0.24 });
+        burst(starPool, 7, 6, t, EV.egg, eggAt.clone().add(new V3(0, 0.1, 0)), { seed: 6, size: 0.26, up: 0.9 });
+
+        // ---- bunny
+        {
+          const s = sample(bunnySched, t);
+          bunny.g.position.set(s.pos.x, s.moving ? Math.abs(Math.sin(t * 8)) * 0.18 : 0, s.pos.z);
+          bunny.g.rotation.y = s.yaw;
+          const nibble = s.s.nibble ? Math.max(0, Math.sin(t * 9)) * 0.12 : 0;
+          bunny.g.rotation.x = nibble;
+          bunny.ears.forEach((e, i) => (e.rotation.x = Math.sin(t * 2 + i) * 0.12 - (s.moving ? 0.25 : 0)));
+        }
+
+        // ---- koi, bees
+        koi.forEach((k, i) => {
+          k.ph = k.sp * t * 1.0 + i * 2.1;
+          const cx = POND.x0 + pondW / 2 - 0.3;
+          const cz = POND.z0 + pondD / 2;
+          const jt = EV.koi[i];
+          const kk = t - jt;
+          const jump = kk > 0 && kk < 0.8 ? Math.sin((kk / 0.8) * Math.PI) * 0.9 : 0;
+          k.g.position.set(cx + Math.cos(k.ph) * k.r * 1.2, -0.38 + jump, cz + Math.sin(k.ph) * k.r * 0.9);
+          k.g.rotation.y = -k.ph + Math.PI;
+          k.g.rotation.x = jump ? -Math.cos((kk / 0.8) * Math.PI) * 0.9 : 0;
+          k.tail.rotation.y = Math.sin(t * 9) * 0.5;
+          const kph = k.sp * jt + i * 2.1;
+          const at = new V3(cx + Math.cos(kph) * k.r * 1.2, -0.12, cz + Math.sin(kph) * k.r * 0.9);
+          burst(dropPool, 40 + i * 10, 10, t, jt, at, { up: 2.4, spread: 0.9, g: -7, life: 0.75, size: 0.08, seed: 10 + i });
+          burst(dropPool, 40 + i * 10, 10, t, jt + 0.8, at, { up: 2.0, spread: 0.8, g: -7, life: 0.7, size: 0.07, seed: 20 + i });
+        });
+        bees.forEach((b, i) => {
+          const s = t * 0.6 + b.ph;
+          b.g.position.set(5.5 + Math.sin(s * 1.3) * 4, 2.2 + Math.sin(s * 2.1) * 0.8 + i * 0.4, -2.5 + Math.cos(s) * 3.2);
+          b.g.rotation.y = -s * 1.3;
+          b.wings.forEach((w, j) => (w.rotation.z = (j ? -1 : 1) * Math.sin(t * 60) * 0.6));
+        });
+
+        // sun placement + render
+        sunScreen.copy(sun.position).normalize().multiplyScalar(40).add(TARGET).project(camera);
+        const sx = clamp(0.12 + (sunScreen.x * 0.5 + 0.5) * 0.06, 0.08, 0.2);
+        skyMat.uniforms.uSun.value.set(sx, lerp(0.8, 0.72, dusk));
+        grade.uniforms.uSun.value.set(sx, lerp(0.8, 0.72, dusk));
+        composer.render(1 / 24);
+      }
+
+      // size the orthographic view and the composer once (fixed 1920x1080 film frame)
+      {
+        const viewH = 31;
+        const aspect = W / H;
+        camera.left = (-viewH * aspect) / 2;
+        camera.right = (viewH * aspect) / 2;
+        camera.top = viewH / 2;
+        camera.bottom = -viewH / 2;
+        camera.updateProjectionMatrix();
+        renderer.setPixelRatio(1);
+        renderer.setSize(W, H, false);
+        composer.setPixelRatio(1);
+        composer.setSize(W, H);
+        tiltH.uniforms.uDir.value.set(1 / W, 0);
+        tiltV.uniforms.uDir.value.set(0, 1 / H);
+        tiltH.uniforms.uAmount.value = tiltV.uniforms.uAmount.value = 1.6;
+        skyMat.uniforms.uAspect.value = W / H;
+        grade.uniforms.uAspect.value = W / H;
+      }
+
+      let current = window.__hfThreeTime || 0;
+      window.addEventListener("hf-seek", (e) => {
+        current = e.detail.time;
+        renderAt(current);
+      });
+      renderAt(current);
+      markReady();
+    </script>
+  </body>
+</html>

@@ -2,3 +2,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.bak
+video/node_modules/
+video/renders/
+video/snapshots/
+video/.hyperframes/
